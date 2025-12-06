@@ -1,4 +1,3 @@
-# alx_capstone_be
 # 💡 Project Idea: 
 Car Rental API using Django REST Framework (DRF).
 Project Features:
@@ -99,3 +98,4 @@ Write a comprehensive README.md explaining how to set up, run, and interact with
 Write a few simple unit tests for my custom permission class and concurrency validation logic. (I need to do reading here as well!)
 4. Presentation Prep:
 Preparing the final video for the capstone.
+
