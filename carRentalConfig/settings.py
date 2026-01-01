@@ -24,13 +24,18 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.postgres', # Required for ExclusionConstraint
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'car_rental_app',  # my main app
+    'users',
+    'core',
+    'branches',
+    'vehicles',
+    'rentals',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist', # this one is optional: for token blacklisting
-
+    # 'sslserver', # For HTTPS dev server
 ]
 
 
@@ -116,6 +121,8 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+
+AUTH_USER_MODEL = 'users.User'
 
 
 # Static files (CSS, JavaScript, Images)
