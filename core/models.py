@@ -14,7 +14,7 @@ class Agency(models.Model):
         ('RAWAI', 'Rawai'),
         ('CHALONG', 'Chalong'),
     ]
-    # Updated reference to 'users.User'
+    # Owner of the agency (AGENCY_ADMIN)
     user = models.OneToOneField('users.User', on_delete=models.CASCADE, related_name='agency_profile')
     agency_name = models.CharField(max_length=255)
     address = models.TextField()
@@ -31,3 +31,13 @@ class Agency(models.Model):
 
     def __str__(self):
         return self.agency_name
+
+# Link for Agency Staff (AGENCY_STAFF role)
+class AgencyMember(models.Model):
+    user = models.OneToOneField('users.User', on_delete=models.CASCADE, related_name='agency_membership')
+    agency = models.ForeignKey(Agency, on_delete=models.CASCADE, related_name='members')
+    joined_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.user} - {self.agency.agency_name}"
