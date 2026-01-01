@@ -19,7 +19,7 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         # Your custom field for superuser creation
-        extra_fields.setdefault('is_agency_admin', True) 
+        extra_fields.setdefault('role', 'PLATFORM_ADMIN') 
         
         return self.create_user(username, email, password, **extra_fields)
     
