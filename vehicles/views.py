@@ -66,11 +66,18 @@ class VehicleDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = VehicleDetailSerializer
     lookup_field = 'slug' # Using slug for SEO friendly URLs
 
+    # SIDENOTE: 
+    #  using both get_queryset and get_permissions is used for two different purposes
+    #  VISIBILITY: get_queryset is used to limit what records the view can even "see"
+    #  AUTHORIZATION: get_permissions is used to limit what actions the user can perform on the records
+
     def get_queryset(self):
         """
         The 'Wall of Defense': Limits what records the view can even "see".
         """
-        qs = Vehicle.objects.select_related('owner_agency', 'specs').all()
+        # the select related handles one-to-one/foreign keys
+        # now I will add prefetch which handles many-to-many/foreign keys
+        qs = Vehicle.objects.select_related('owner_agency', 'specs').prefetch_related('images').all()
         
         # Check if the user is trying to change data (Write operations)
         if self.request.method in ['PUT', 'PATCH', 'DELETE']:

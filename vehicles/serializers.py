@@ -53,5 +53,11 @@ class VehicleDetailSerializer(serializers.ModelSerializer):
         Automatically assign the vehicle to the agency of the user creating it.
         """
         user = self.context['request'].user
+
+        # check if the user has an agency first
+        if not hasattr(user, 'agency'):
+            raise serializers.ValidationError(
+                {"detail": "You must be an agency user to create a vehicle."}
+            )
         validated_data['owner_agency'] = user.agency
         return super().create(validated_data)
