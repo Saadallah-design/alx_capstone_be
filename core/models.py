@@ -18,7 +18,8 @@ class Agency(models.Model):
     user = models.OneToOneField('users.User', on_delete=models.CASCADE, related_name='agency_profile')
     agency_name = models.CharField(max_length=255)
     address = models.TextField()
-    phone_number = models.CharField(max_length=20)
+    contact_email = models.EmailField(max_length=255, null=True, blank=True)
+    phone_number = models.CharField(max_length=20, null=True, blank=True)
     license_number = models.CharField(max_length=100)
     city = models.CharField(max_length=50, choices=CITY_CHOICES, default='PATONG')
 

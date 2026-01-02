@@ -44,7 +44,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
+    phone_number = models.CharField(max_length=20, null=True, blank=True)
     date_joined = models.DateTimeField(auto_now_add=True)
+
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}"
 
     # using only is_staff and is_active for Django admin
     is_active = models.BooleanField(default=True)
@@ -61,6 +65,28 @@ class User(AbstractBaseUser, PermissionsMixin):
     
     def is_agency_user(self):
         return self.role in ['AGENCY_ADMIN', 'AGENCY_STAFF']
+
+    def is_agency_admin(self):
+        return self.role == 'AGENCY_ADMIN'
+
+    def is_agency_staff(self):
+        return self.role == 'AGENCY_STAFF'
+
+    def is_platform_admin(self):
+        return self.role == 'PLATFORM_ADMIN'
+
+    @property
+    def agency(self):
+        """
+        Helper to get the agency associated with this user, 
+        regardless of whether they are an owner or staff.
+        """
+        if self.is_agency_admin():
+            return getattr(self, 'agency_profile', None)
+        elif self.is_agency_staff():
+            membership = getattr(self, 'agency_membership', None)
+            return membership.agency if membership else None
+        return None
     
     def __str__(self):
         return self.username
