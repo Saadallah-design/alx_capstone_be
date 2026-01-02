@@ -15,7 +15,11 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'testserver',
+]
 
 
 # Application definition
@@ -35,6 +39,7 @@ INSTALLED_APPS = [
     'rentals',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist', # this one is optional: for token blacklisting
+    'django_filters',
     # 'sslserver', # For HTTPS dev server
 ]
 

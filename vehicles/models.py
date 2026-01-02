@@ -15,8 +15,8 @@ class Vehicle(models.Model):
     ]
     # Updated reference to 'core.Agency'
     owner_agency = models.ForeignKey('core.Agency', on_delete=models.CASCADE, related_name='vehicles', blank=True, null=True)
-    make = models.CharField(max_length=100)
-    model = models.CharField(max_length=100)
+    make = models.CharField(max_length=100, default='Unknown')
+    model = models.CharField(max_length=100, default='Unknown')
     year = models.PositiveIntegerField()
     vehicle_type = models.CharField(max_length=20, choices=vehicle_type_choices)
     daily_rental_rate = models.DecimalField(max_digits=10, decimal_places=2)
