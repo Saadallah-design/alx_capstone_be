@@ -43,6 +43,12 @@ INSTALLED_APPS = [
     # 'sslserver', # For HTTPS dev server
 ]
 
+# Custom authentication backends
+AUTHENTICATION_BACKENDS = [
+    'users.backends.EmailOrUsernameBackend',  # Allow email or username login
+    'django.contrib.auth.backends.ModelBackend',  # Fallback to default
+]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

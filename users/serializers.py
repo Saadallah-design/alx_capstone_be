@@ -167,6 +167,55 @@ class UserProfileDetailSerializer(UserProfileSerializer):
 # adding jwt custom claims serializer for efficient user role checks and db queries
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """
+    Custom JWT serializer that:
+    1. Accepts email OR username for login
+    2. Adds custom claims to the JWT token
+    """
+    
+    def validate(self, attrs):
+        """
+        Override to allow email or username in the username field.
+        The 'username' field can contain either username or email.
+        """
+        # The 'username' field can contain either username or email
+        username_or_email = attrs.get('username')
+        password = attrs.get('password')
+        
+        # Import here to avoid circular imports
+        from django.contrib.auth import authenticate
+        
+        # Authenticate using our custom backend
+        user = authenticate(
+            request=self.context.get('request'),
+            username=username_or_email,
+            password=password
+        )
+        
+        if user is None:
+            raise serializers.ValidationError(
+                'No active account found with the given credentials'
+            )
+        
+        if not user.is_active:
+            raise serializers.ValidationError('User account is disabled')
+        
+        # Generate tokens using the parent class method
+        refresh = self.get_token(user)
+        
+        data = {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'role': user.role,
+            }
+        }
+        
+        return data
+    
     @classmethod
     def get_token(cls, user):
         """Override to add custom claims to the token"""
