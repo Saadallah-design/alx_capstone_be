@@ -40,8 +40,12 @@ class BookingDetailSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Booking
-        fields = '__all__'
-        read_only_fields = ['total_rental_cost', 'created_at']
+        fields = [
+            'id', 'user', 'agency', 'vehicle', 'pickup_location', 'dropoff_location',
+            'start_date', 'end_date', 'total_rental_cost', 'booking_status',
+            'agency_name', 'pickup_branch_name', 'dropoff_branch_name'
+        ]
+        read_only_fields = ['total_rental_cost']
 
 
 # Booking Create Serializer

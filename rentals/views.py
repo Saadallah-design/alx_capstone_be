@@ -12,11 +12,12 @@ class BookingListCreateView(generics.ListCreateAPIView):
     
     def get_queryset(self):
         # Customers see only their own bookings
-        # Agency users might see their agency's bookings (implement later)
+        # Agency users see bookings for their agency's vehicles
         user = self.request.user
         if user.is_customer():
             return Booking.objects.filter(user=user).order_by('-start_date')
-        # TODO: Add logic for agency users
+        elif user.is_agency_user():
+            return Booking.objects.filter(agency=user.agency).order_by('-start_date')
         return Booking.objects.none()
     
     def get_serializer_class(self):
