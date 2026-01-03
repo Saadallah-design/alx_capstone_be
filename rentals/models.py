@@ -38,9 +38,9 @@ class Booking(models.Model):
     agency = models.ForeignKey('core.Agency', on_delete=models.CASCADE, related_name='bookings')
 
     
-    # Updated reference to 'branches.Location'
-    pickup_location = models.ForeignKey('branches.Location', on_delete=models.CASCADE, related_name='pickup_bookings')
-    dropoff_location = models.ForeignKey('branches.Location', on_delete=models.CASCADE, related_name='dropoff_bookings')
+    # Updated reference to 'branches.Branch'
+    pickup_location = models.ForeignKey('branches.Branch', on_delete=models.CASCADE, related_name='pickup_bookings')
+    dropoff_location = models.ForeignKey('branches.Branch', on_delete=models.CASCADE, related_name='dropoff_bookings')
 
     # rental period
     start_date = models.DateTimeField()

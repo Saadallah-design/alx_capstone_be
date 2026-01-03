@@ -35,8 +35,8 @@ class BookingDetailSerializer(serializers.ModelSerializer):
     vehicle = VehicleListSerializer(read_only=True)
     user = UserProfileDetailSerializer(read_only=True)
     agency_name = serializers.CharField(source='agency.agency_name', read_only=True)
-    pickup_location_name = serializers.CharField(source='pickup_location.address', read_only=True)
-    dropoff_location_name = serializers.CharField(source='dropoff_location.address', read_only=True)
+    pickup_branch_name = serializers.CharField(source='pickup_location.name', read_only=True)
+    dropoff_branch_name = serializers.CharField(source='dropoff_location.name', read_only=True)
     
     class Meta:
         model = Booking
