@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.password_validation import validate_password
 from core.models import Agency
+from drf_spectacular.utils import extend_schema_field
 
 User = get_user_model()
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -149,10 +150,13 @@ class UserProfileDetailSerializer(UserProfileSerializer):
             'is_active',
         ]
     
+
+    @extend_schema_field(serializers.IntegerField())
     def get_total_rentals(self, obj):
         """Count of all rentals made by this user"""
         return obj.bookings.count()  # Using correct related_name 'bookings'
     
+    @extend_schema_field(serializers.IntegerField())
     def get_active_rentals(self, obj):
         """Count of currently active rentals"""
         from django.utils import timezone
@@ -173,19 +177,33 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     2. Adds custom claims to the JWT token
     """
     
+    @classmethod
+    def get_token(cls, user):
+        """Override to add custom claims to the token"""
+        token = super().get_token(user)
+
+        # adding custom claims to the token (DECODED ACCESS TOKEN PAYLOAD)
+        token['role'] = user.role
+        token['id'] = user.id
+
+        if user.agency:
+            token['agency_id'] = user.agency.id
+        else:
+            token['agency_id'] = None
+
+        return token
+
     def validate(self, attrs):
         """
-        Override to allow email or username in the username field.
-        The 'username' field can contain either username or email.
+        Merge of: 
+        1. Custom authentication (Allows email OR username)
+        2. Custom response structure (Adds user/agency info to the response)
         """
-        # The 'username' field can contain either username or email
         username_or_email = attrs.get('username')
         password = attrs.get('password')
         
-        # Import here to avoid circular imports
         from django.contrib.auth import authenticate
         
-        # Authenticate using our custom backend
         user = authenticate(
             request=self.context.get('request'),
             username=username_or_email,
@@ -200,91 +218,36 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         if not user.is_active:
             raise serializers.ValidationError('User account is disabled')
         
-        # Generate tokens using the parent class method
+        # Manually trigger token generation
         refresh = self.get_token(user)
         
         data = {
             'refresh': str(refresh),
             'access': str(refresh.access_token),
-            'user': {
-                'id': user.id,
-                'username': user.username,
-                'email': user.email,
-                'role': user.role,
-            }
         }
-        
-        return data
-    
-    @classmethod
-    def get_token(cls, user):
-        """Override to add custom claims to the token"""
-        token = super().get_token(user)
 
-
-        # adding custom claims to the token (DECODED ACCESS TOKEN PAYLOAD)
-        token['role'] = user.role
-        token['id'] = user.id
-        # token['full_name'] = user.full_name()
-        # token['email'] = user.email
-
-
-        # ====================================================================
-        # Agency information - for multi-tenant data isolation
-        # ====================================================================
-        if user.agency:
-            token['agency_id'] = user.agency.id
-            #  for the agency_name it is suggested to remove it in the payload to prevent bloated payload. but keep it in the response
-            # token['agency_name'] = user.agency.agency_name
-
-
-        else:
-            token['agency_id'] = None
-            # token['agency_name'] = None
-
-        # # adding boolean to check if the user is an agency admin
-        # token['is_customer'] = user.is_customer()
-        # token['is_agency_admin'] = user.is_agency_admin()
-        # token['is_agency_staff'] = user.is_agency_staff()
-        # token['is_platform_admin'] = user.is_platform_admin()
-
-        return token
-
-
-    # ========================================================================
-    # METHOD 2: validate() - Customizes the login response
-    # ========================================================================
-
-    def validate(self, attrs):
-        data = super().validate(attrs)
-
-
-        # Add extra user information to the response (optional)
-        # - Frontend can store user info in state without decoding JWT
-        # - Useful for UI personalization immediately after login
+        # Add extra user information to the response (UI personalization)
         data['user'] = {
-            'role': self.user.role,
-            'id': self.user.id, 
-            'full_name': self.user.username,
-            'email': self.user.email,
+            'role': user.role,
+            'id': user.id, 
+            'full_name': user.username,
+            'email': user.email,
             'permissions': {
-                'is_customer': self.user.is_customer(),
-                'is_agency_admin': self.user.is_agency_admin(),
-                'is_agency_staff': self.user.is_agency_staff(),
-                'is_platform_admin': self.user.is_platform_admin(),
+                'is_customer': user.is_customer(),
+                'is_agency_admin': user.is_agency_admin(),
+                'is_agency_staff': user.is_agency_staff(),
+                'is_platform_admin': user.is_platform_admin(),
             }
         }
 
         # Check if agency exists to avoid 'NoneType' attribute errors
-        if self.user.agency:
+        if user.agency:
             data['agency'] = {
-                'id': self.user.agency.id,
-                'name': self.user.agency.agency_name,
-                'slug': getattr(self.user.agency, 'slug', None) # If you use slugs for URLs
+                'id': user.agency.id,
+                'name': user.agency.agency_name,
+                'slug': getattr(user.agency, 'slug', None)
             }
         else:
             data['agency'] = None
-        
-
 
         return data

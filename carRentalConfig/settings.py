@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist', # this one is optional: for token blacklisting
     'django_filters',
+    'drf_spectacular',
+    'django_extensions',
     # 'sslserver', # For HTTPS dev server
 ]
 
@@ -91,7 +93,8 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'anon': '100/day',
         'user': '1000/day'
-    }
+    },
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 # Database
@@ -164,4 +167,12 @@ SIMPLE_JWT = {
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
     'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'ALX Car Rental API',
+    'DESCRIPTION': 'Comprehensive API for the ALX Capstone Car Rental Platform. Supports dual roles (Agencies/Customers), location tracking, and real-time booking management.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # OTHER SETTINGS
 }
