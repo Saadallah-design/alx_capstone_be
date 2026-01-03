@@ -9,6 +9,7 @@ from rest_framework_simplejwt.views import (
 )
 
 from django.urls import path, include
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -18,4 +19,9 @@ urlpatterns = [
     path('api/vehicles/', include('vehicles.urls')),
     path('api/bookings/', include('rentals.urls')),
     path('api/branches/', include('branches.urls')),
+
+    # Schema & Documentation
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]

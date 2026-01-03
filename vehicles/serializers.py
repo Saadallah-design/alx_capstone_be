@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Vehicle, VehicleImage, VehicleSpecs
+from drf_spectacular.utils import extend_schema_field
 
 # creating serializers for vehicles app (mainly 4 serializers)
 
@@ -25,6 +26,8 @@ class VehicleListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vehicle
         fields = ['id', 'make', 'daily_rental_rate', 'model', 'main_image', 'branch_name']
+
+    @extend_schema_field(serializers.URLField(allow_null=True))
     def get_main_image(self, obj):
         #  return the main image thumbnail
         first_image = obj.images.filter(is_main=True).first()
@@ -52,6 +55,8 @@ class VehicleDetailSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['owner_agency', 'slug', 'branch_details']
 
+
+    @extend_schema_field(serializers.DictField(child=serializers.CharField(), allow_null=True))
     def get_branch_details(self, obj):
         if obj.current_location:
             return {

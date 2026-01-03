@@ -3,6 +3,8 @@ from django.utils import timezone
 from .models import Booking
 from vehicles.serializers import VehicleListSerializer
 from users.serializers import UserProfileDetailSerializer
+from drf_spectacular.utils import extend_schema_field
+
 
 class BookingListSerializer(serializers.ModelSerializer):
     vehicle_make = serializers.CharField(source='vehicle.make', read_only=True)
@@ -23,6 +25,8 @@ class BookingListSerializer(serializers.ModelSerializer):
             'booking_status',
         ]
     
+
+    @extend_schema_field(serializers.URLField(allow_null=True))
     def get_vehicle_image(self, obj):
         # Return the main image thumbnail
         first_image = obj.vehicle.images.filter(is_main=True).first()
