@@ -23,6 +23,16 @@ class Vehicle(models.Model):
     licence_plate = models.CharField(max_length=20, unique=True)
     status = models.CharField(max_length=20, choices=status_choices, default='AVAILABLE')
 
+    # adding current_location field to the model
+    current_location = models.ForeignKey(
+        'branches.Branch',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='parked_vehicles',
+        help_text='Current physical location of this vehicle'
+    )
+
     # adding extra fields
     slug = models.SlugField(unique=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

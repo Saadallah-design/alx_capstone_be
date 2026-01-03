@@ -20,10 +20,11 @@ class VehicleListSerializer(serializers.ModelSerializer):
 
     # method to get just the main image thumbnail for list view
     main_image = serializers.SerializerMethodField()
+    branch_name = serializers.CharField(source='current_location.name', read_only=True)
     
     class Meta:
         model = Vehicle
-        fields = ['id', 'make', 'daily_rental_rate', 'model', 'main_image']
+        fields = ['id', 'make', 'daily_rental_rate', 'model', 'main_image', 'branch_name']
     def get_main_image(self, obj):
         #  return the main image thumbnail
         first_image = obj.images.filter(is_main=True).first()
@@ -39,14 +40,26 @@ class VehicleDetailSerializer(serializers.ModelSerializer):
     images = VehicleImageSerializer(many=True,read_only=True)
     specs = VehicleSpecsSerializer(read_only=True)
     agency_name = serializers.CharField(source='owner_agency.agency_name', read_only=True)
+    branch_details = serializers.SerializerMethodField()
+    
     class Meta:
         model = Vehicle
         fields = [
             'id', 'owner_agency', 'agency_name', 'make', 'model', 'year', 
             'vehicle_type', 'daily_rental_rate', 'licence_plate', 
-            'status', 'slug', 'specs', 'images', 'created_at'
+            'status', 'slug', 'specs', 'images', 'created_at',
+            'current_location', 'branch_details'
         ]
-        read_only_fields = ['owner_agency', 'slug']
+        read_only_fields = ['owner_agency', 'slug', 'branch_details']
+
+    def get_branch_details(self, obj):
+        if obj.current_location:
+            return {
+                'name': obj.current_location.name,
+                'slug': obj.current_location.slug,
+                'city': obj.current_location.city
+            }
+        return None
 
     def create(self, validated_data):
         """
