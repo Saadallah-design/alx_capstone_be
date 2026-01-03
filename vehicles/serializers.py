@@ -25,7 +25,7 @@ class VehicleListSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Vehicle
-        fields = ['id', 'make', 'daily_rental_rate', 'model', 'main_image', 'branch_name']
+        fields = ['id', 'slug', 'make', 'daily_rental_rate', 'model', 'main_image', 'branch_name']
 
     @extend_schema_field(serializers.URLField(allow_null=True))
     def get_main_image(self, obj):

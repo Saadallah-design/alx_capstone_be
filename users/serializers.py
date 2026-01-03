@@ -69,6 +69,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
     
     # Computed fields (not in database, generated on-the-fly)
     role_display = serializers.CharField(source='get_role_display', read_only=True)
+    is_approved = serializers.SerializerMethodField()
+    is_pending_agency = serializers.SerializerMethodField()
     
 
 
@@ -86,6 +88,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
             'date_joined',
             'phone_number',
+
+            'is_approved',
+            'is_pending_agency',
             ]
 
         # Fields that cannot be changed via profile update
@@ -110,6 +115,25 @@ class UserProfileSerializer(serializers.ModelSerializer):
         if value and not value.replace('+', '').replace('-', '').replace(' ', '').isdigit():
             raise serializers.ValidationError("Phone number must contain only digits, spaces, + and -")
         return value
+
+    @extend_schema_field(serializers.BooleanField())
+    def get_is_approved(self, obj):
+        """Account is fully verified and role is Agency Admin"""
+        if obj.is_agency_admin():
+            # If they are an admin, they are approved
+            return True
+        # If they are a customer but their agency profile is verified (waiting for role swap)
+        agency = obj.agency
+        return agency.is_verified if agency else False
+
+    @extend_schema_field(serializers.BooleanField())
+    def get_is_pending_agency(self, obj):
+        """Has an agency profile but is still a Customer (pending review)"""
+        # If they are a customer but have a linked agency profile
+        has_agency = hasattr(obj, 'agency_profile') and obj.agency_profile is not None
+        if obj.is_customer() and has_agency:
+            return not obj.agency_profile.is_verified
+        return False
 
     def update(self, instance, validated_data):
         """
@@ -176,6 +200,12 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     1. Accepts email OR username for login
     2. Adds custom claims to the JWT token
     """
+    username = serializers.CharField(required=False)
+    email = serializers.EmailField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields[self.username_field].required = False
     
     @classmethod
     def get_token(cls, user):
@@ -199,7 +229,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         1. Custom authentication (Allows email OR username)
         2. Custom response structure (Adds user/agency info to the response)
         """
-        username_or_email = attrs.get('username')
+        # Support both 'username' and 'email' as keys from the frontend
+        username_or_email = attrs.get('username') or attrs.get('email')
         password = attrs.get('password')
         
         from django.contrib.auth import authenticate

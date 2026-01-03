@@ -16,9 +16,10 @@ urlpatterns = [
     
     # API endpoints
     path('api/auth/', include('users.urls')),
+    path('api/core/', include('core.urls')),
     path('api/vehicles/', include('vehicles.urls')),
-    path('api/bookings/', include('rentals.urls')),
     path('api/branches/', include('branches.urls')),
+    path('api/bookings/', include('rentals.urls')),
 
     # Schema & Documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
