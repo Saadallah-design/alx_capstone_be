@@ -59,8 +59,8 @@ class CreateCheckoutSessionView(View):
                 },
                 # Metadata links this Stripe Session back to our DB record
                 metadata={'payment_uuid': str(payment.uuid)},
-                success_url=settings.SITE_URL + f"/rentals/booking/{booking.id}/success/",
-                cancel_url=settings.SITE_URL + f"/rentals/booking/{booking.id}/cancel/",
+                success_url=settings.SITE_URL.rstrip('/') + f"/rentals/booking/{booking.id}/success/",
+                cancel_url=settings.SITE_URL.rstrip('/') + f"/rentals/booking/{booking.id}/cancel/",
             )
             # Returning JSON instead of redirect allows the frontend to handle the transition
             return JsonResponse({'checkout_url': session.url})

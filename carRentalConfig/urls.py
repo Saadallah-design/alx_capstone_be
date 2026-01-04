@@ -28,5 +28,6 @@ urlpatterns = [
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 
     # stripe 
-    path('payments/', include('payments.urls')),
+    # stripe 
+    path('api/payments/', include('payments.urls')),
 ]
