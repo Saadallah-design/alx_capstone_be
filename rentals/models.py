@@ -102,6 +102,22 @@ class Booking(models.Model):
         self.clean()
         super().save(*args, **kwargs)
 
+
+    # FOR PAYMENT APP
+    def mark_as_returned(self):
+        """Call this when the keys are handed back."""
+        self.actual_dropoff_at = timezone.now()
+        self.booking_status = 'COMPLETED'
+        self.save()
+        
+        # Trigger the deposit release
+        from payments.services import release_security_deposit
+        release_security_deposit(self)
+
+
+    # -------------------------------------
+
+
     # adding a database constraint to enforce no overlapping bookings at the DB level
     class Meta:
         indexes = [

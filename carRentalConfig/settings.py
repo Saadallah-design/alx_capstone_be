@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'django_extensions',
     'corsheaders',
+    'payments'
     # 'sslserver', # For HTTPS dev server
 ]
 
@@ -181,3 +182,10 @@ SPECTACULAR_SETTINGS = {
 
 # CORS Settings
 CORS_ALLOW_ALL_ORIGINS = True # Set to False and use CORS_ALLOWED_ORIGINS in production
+
+
+# Stripe
+STRIPE_TEST_SECRET_KEY = os.getenv('STRIPE_TEST_SECRET_KEY')  # Your test secret key
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET') 
+
+SITE_URL = os.getenv('SITE_URL', 'http://127.0.0.1:8000')
