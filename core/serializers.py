@@ -16,5 +16,27 @@ class AgencyApplicationSerializer(serializers.ModelSerializer):
         # Check if they already have an agency
         if hasattr(user, 'agency_profile'):
              raise serializers.ValidationError("You already have an agency application.")
+        
+        # Determine if we should auto-verify (MVP shortcut for admins/staff)
+        is_verified = False
+        if user.is_staff or user.role == 'AGENCY_ADMIN':
+            is_verified = True
+            
+        agency = Agency.objects.create(
+            user=user, 
+            is_verified=is_verified,
+            **validated_data
+        )
+
+        if is_verified:
+            from django.utils import timezone
+            agency.verification_date = timezone.now()
+            agency.verification_note = "Auto-verified for administrative user."
+            agency.save()
+            
+            # Ensure the user has the correct role to see the dashboard
+            if user.role != 'AGENCY_ADMIN':
+                user.role = 'AGENCY_ADMIN'
+                user.save()
              
-        return Agency.objects.create(user=user, **validated_data)
+        return agency
