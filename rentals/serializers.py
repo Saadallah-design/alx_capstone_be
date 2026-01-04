@@ -3,36 +3,41 @@ from django.utils import timezone
 from .models import Booking
 from vehicles.serializers import VehicleListSerializer
 from users.serializers import UserProfileDetailSerializer
+from branches.serializers import BranchListSerializer
 from drf_spectacular.utils import extend_schema_field
 
 
 class BookingListSerializer(serializers.ModelSerializer):
-    vehicle_make = serializers.CharField(source='vehicle.make', read_only=True)
-    vehicle_model = serializers.CharField(source='vehicle.model', read_only=True)
-    vehicle_image = serializers.SerializerMethodField()
-
+    # Use full nested serializers to get details (Image, Make, Model)
+    vehicle = VehicleListSerializer(read_only=True)
+    
+    # Use Branch serializer to get Location Names instead of IDs
+    pickup_location = BranchListSerializer(read_only=True)
+    dropoff_location = BranchListSerializer(read_only=True)
+    
+    # User info for Agency Dashboard display
+    user_name = serializers.CharField(source='user.first_name', read_only=True)
+    user_email = serializers.CharField(source='user.email', read_only=True)
+    
+    # Aliases to match frontend expectations
+    status = serializers.CharField(source='booking_status', read_only=True)
+    total_price = serializers.DecimalField(source='total_rental_cost', max_digits=10, decimal_places=2, read_only=True)
     class Meta:
         model = Booking
         fields = [
             'id',
             'vehicle',
-            'vehicle_make',
-            'vehicle_model',
-            'vehicle_image',
+            'pickup_location',
+            'dropoff_location',
+            'user_name',
+            'user_email',
             'start_date',
             'end_date',
             'total_rental_cost',
             'booking_status',
+            'status',       # Alias
+            'total_price',  # Alias
         ]
-    
-
-    @extend_schema_field(serializers.URLField(allow_null=True))
-    def get_vehicle_image(self, obj):
-        # Return the main image thumbnail
-        first_image = obj.vehicle.images.filter(is_main=True).first()
-        if first_image:
-            return first_image.image.url
-        return None
 
 
 class BookingDetailSerializer(serializers.ModelSerializer):
