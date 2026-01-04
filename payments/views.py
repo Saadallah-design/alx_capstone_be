@@ -7,6 +7,11 @@ from django.shortcuts import get_object_or_404
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status, permissions
+import json
+import uuid
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +67,70 @@ class CreateCheckoutSessionView(View):
         except Exception as e:
             logger.error(f"Error creating Stripe checkout session: {str(e)}")
             return JsonResponse({'error': str(e)}, status=400)
+
+
+class InitiatePaymentView(APIView):
+    """
+    Creates a Payment record for a Booking so that the frontend
+    can subsequently call create-session.
+    POST /api/payments/initiate/
+    { "booking_id": 123 }
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        booking_id = request.data.get('booking_id')
+        payment_type = request.data.get('payment_type', 'RENTAL_FEE')
+
+        if not booking_id:
+            return Response({"error": "booking_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 1. Fetch Booking and validate ownership
+        booking = get_object_or_404(Booking, id=booking_id)
+        if booking.user != request.user:
+            return Response({"error": "You do not have permission to pay for this booking."}, status=status.HTTP_403_FORBIDDEN)
+
+        # 2. Check for existing PENDING payment to avoid duplicates
+        existing_payment = Payment.objects.filter(
+            booking=booking, 
+            status='PENDING', 
+            payment_type=payment_type
+        ).first()
+
+        if existing_payment:
+            return Response({
+                "payment_uuid": existing_payment.uuid,
+                "amount": existing_payment.amount,
+                "currency": existing_payment.currency,
+                "status": "EXISTING"
+            })
+
+        # 3. Create new Payment
+        try:
+            # We use a temporary transaction ID until Stripe gives us one
+            # The model requires this field to be unique
+            temp_transaction_id = f"pending_{uuid.uuid4()}"
+            
+            payment = Payment.objects.create(
+                booking=booking,
+                amount=booking.total_rental_cost,
+                currency='USD', # Defaulting to USD for now
+                payment_type=payment_type,
+                status='PENDING',
+                provider='Stripe',
+                provider_transaction_id=temp_transaction_id
+            )
+
+            return Response({
+                "payment_uuid": payment.uuid,
+                "amount": payment.amount,
+                "currency": payment.currency,
+                "status": "CREATED"
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            logger.error(f"Error initiating payment: {str(e)}")
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
