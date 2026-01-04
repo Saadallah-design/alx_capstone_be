@@ -52,14 +52,14 @@ RENDER_EXTERNAL_HOSTNAME=your-app-name.onrender.com
 DATABASE_URL=postgresql://user:password@host:port/database
 
 # CORS (Your frontend URL)
-CORS_ALLOWED_ORIGINS=https://your-frontend.vercel.app,https://your-frontend.netlify.app
+CORS_ALLOWED_ORIGINS=https://alx-capstone-fe.vercel.app
 
 # Stripe
 STRIPE_TEST_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 
 # Site URL (Your frontend URL for redirects)
-SITE_URL=https://your-frontend.vercel.app
+SITE_URL=https://alx-capstone-fe.vercel.app
 ```
 
 ### Important Notes:

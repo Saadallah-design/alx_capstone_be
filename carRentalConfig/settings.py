@@ -113,12 +113,27 @@ REST_FRAMEWORK = {
 # Database configuration
 import dj_database_url
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default=f"postgresql://{os.getenv('POSTGRES_DB_USER')}:{os.getenv('POSTGRES_DB_PASSWORD')}@{os.getenv('POSTGRES_DB_HOST')}:{os.getenv('POSTGRES_DB_PORT')}/{os.getenv('POSTGRES_DB_NAME')}",
-        conn_max_age=600
-    )
-}
+DATABASE_URL = os.getenv('DATABASE_URL')
+
+# Support Render deployment while allowing local environment variables
+if DATABASE_URL and not DATABASE_URL.startswith('postgres://user:password'):
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600
+        )
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('POSTGRES_DB_NAME'),
+            'USER': os.getenv('POSTGRES_DB_USER'),
+            'PASSWORD': os.getenv('POSTGRES_DB_PASSWORD'),
+            'HOST': os.getenv('POSTGRES_DB_HOST'),
+            'PORT': os.getenv('POSTGRES_DB_PORT'),
+        }
+    }
 
 
 # Password validation
