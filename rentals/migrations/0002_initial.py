@@ -5,6 +5,7 @@ import django.contrib.postgres.fields.ranges
 import django.db.models.deletion
 from django.conf import settings
 from django.db import migrations, models
+from django.contrib.postgres.operations import BtreeGistExtension
 
 
 class Migration(migrations.Migration):
@@ -18,6 +19,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        BtreeGistExtension(),
         migrations.AddField(
             model_name='booking',
             name='user',
