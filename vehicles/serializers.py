@@ -41,6 +41,9 @@ class VehicleListSerializer(serializers.ModelSerializer):
         #  return the main image thumbnail
         first_image = obj.images.filter(is_main=True).first()
         if first_image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(first_image.image.url)
             return first_image.image.url
         return None
 
@@ -48,7 +51,7 @@ class VehicleListSerializer(serializers.ModelSerializer):
 # handling vehicle detail display
 class VehicleDetailSerializer(serializers.ModelSerializer):
     # Now using nested serializers for related objects
-    images = VehicleImageSerializer(many=True, read_only=True)
+    images = VehicleImageSerializer(many=True, required=False)
     # Changed from read_only=True to allow creation and updates
     specs = VehicleSpecsSerializer(required=True)
     agency_name = serializers.CharField(source='owner_agency.agency_name', read_only=True)
@@ -76,33 +79,60 @@ class VehicleDetailSerializer(serializers.ModelSerializer):
 
     def to_internal_value(self, data):
         """
-        Handle cases where 'specs' is sent as a stringified JSON (common in multipart/form-data).
+        Handle cases where 'specs' or 'images' are sent as stringified JSON or 
+        nested multipart fields (common in multipart/form-data).
         """
+        # Create a mutable copy if needed
+        if hasattr(data, 'dict'):
+            data = data.dict()
+        elif isinstance(data, dict):
+            data = data.copy()
+
+        # 1. Handle specs stringified JSON
         if 'specs' in data and isinstance(data['specs'], str):
             try:
-                # Create a mutable copy of the data if it's a QueryDict
-                if hasattr(data, 'dict'):
-                    data = data.dict()
-                else:
-                    data = data.copy()
-                
                 data['specs'] = json.loads(data['specs'])
             except (ValueError, TypeError):
-                # If parsing fails, let the serializer handle the validation error
                 pass
+        
+        # 2. Handle nested images in multipart (e.g., images[0]image, images[0]is_main)
+        if any(key.startswith('images[') for key in data.keys()):
+            images_dict = {}
+            for key, value in data.items():
+                if key.startswith('images['):
+                    # extract index and field: images[0][image] -> 0, image
+                    try:
+                        import re
+                        match = re.search(r'images\[(\d+)\](?:\[?(\w+)\]?)?', key)
+                        if match:
+                            index = int(match.group(1))
+                            field = match.group(2) or 'image' # Default to image if only images[0]
+                            
+                            if index not in images_dict:
+                                images_dict[index] = {}
+                            
+                            # Handle boolean strings for is_main
+                            if field == 'is_main' and isinstance(value, str):
+                                value = value.lower() == 'true'
+                                
+                            images_dict[index][field] = value
+                    except (ValueError, IndexError, AttributeError):
+                        continue
+            
+            if images_dict:
+                # Convert dict to sorted list
+                data['images'] = [images_dict[i] for i in sorted(images_dict.keys())]
                 
         return super().to_internal_value(data)
 
     def create(self, validated_data):
         """
-        Create a Vehicle and its related Specs in a single request.
+        Create a Vehicle, its related Specs, and its Images in a single request.
         """
-        # Extract specs data with a default empty dict
         specs_data = validated_data.pop('specs', {})
+        images_data = validated_data.pop('images', [])
         
         user = self.context['request'].user
-
-        # Safety check: Ensuring the user actually owns an agency
         if not hasattr(user, 'agency'):
             raise serializers.ValidationError(
                 {"detail": "You must be an agency user to create a vehicle."}
@@ -110,22 +140,29 @@ class VehicleDetailSerializer(serializers.ModelSerializer):
             
         validated_data['owner_agency'] = user.agency
         
-        # 1. Create the Vehicle first
+        # 1. Create the Vehicle
         vehicle = Vehicle.objects.create(**validated_data)
         
-        # 2. Create the child Specs linked to this vehicle
+        # 2. Create Specs
         VehicleSpecs.objects.create(vehicle=vehicle, **specs_data)
         
+        # 3. Create Images
+        # If images were uploaded as files (e.g. via request.FILES), 
+        # they might need special handling depending on how the frontend sends them.
+        for index, image_data in enumerate(images_data):
+            # The 'image_data' usually contains the file and 'is_main' bool
+            VehicleImage.objects.create(vehicle=vehicle, **image_data)
+            
         return vehicle
 
     def update(self, instance, validated_data):
         """
-        Update a Vehicle and its related Specs.
+        Update a Vehicle, its related Specs, and optionally replace/add images.
         """
-        # Handle specs update if provided
         specs_data = validated_data.pop('specs', {})
+        images_data = validated_data.pop('images', None) # None means no update to images
         
-        # Update the vehicle fields
+        # Update core vehicle fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
@@ -136,5 +173,14 @@ class VehicleDetailSerializer(serializers.ModelSerializer):
                 vehicle=instance,
                 defaults=specs_data
             )
+            
+        # Update images if provided
+        if images_data is not None:
+            # Simplest approach: Replace all images if a new set is provided
+            # Or you could append. Given standard UI behavior, replacement or 
+            # specific deletion is usually preferred.
+            # Let's keep it simple: If new images are sent, we ADD them.
+            for image_data in images_data:
+                VehicleImage.objects.create(vehicle=instance, **image_data)
             
         return instance
