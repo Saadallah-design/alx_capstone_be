@@ -30,20 +30,21 @@ class VehicleListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         qs = super().get_queryset()
+        user = self.request.user
+        
         if self.request.method == 'GET':
-            # Agency users (Admins & Staff) should see all their vehicles (Rented, Maintenance, etc.)
-            # Public users should only see AVAILABLE vehicles.
-            if not (self.request.user.is_authenticated and self.request.user.is_agency_user()):
-                return qs.filter(status='AVAILABLE')
+            # 1. Platform Admins see everything
+            if user.is_authenticated and user.is_platform_admin():
+                return qs
 
-            # Note: Theoretically, we might want to filter this further to only show 
-            # *their* agency's vehicles if they are logged in, but for a "Marketplace" list,
-            # seeing all cars might be intended. 
-            # However, usually, a LIST view for admins implies managing THEIR fleet.
-            # If this is a global marketplace, seeing all is fine.
-            # Given the context, let's keep it as returning all (but unfiltered by status)
-            # strictly for agency users, or add permission-based filtering later if needed.
-            return qs
+            # 2. Agency users see all THEIR vehicles (unfiltered by status)
+            if user.is_authenticated and user.is_agency_user() and user.agency:
+                return qs.filter(owner_agency=user.agency)
+
+            # 3. Public/Customers only see AVAILABLE vehicles
+            return qs.filter(status='AVAILABLE')
+        
+        return qs
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
