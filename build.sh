@@ -9,3 +9,6 @@ python manage.py migrate
 
 # Trying to seed data:
 python manage.py seed_data
+
+# Create superuser non-interactively (requires environment variables)
+python manage.py createsuperuser --no-input || true
