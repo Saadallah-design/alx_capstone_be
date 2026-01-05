@@ -21,6 +21,8 @@ class VehicleSpecsSerializer(serializers.ModelSerializer):
 class VehicleListSerializer(serializers.ModelSerializer):
     # Add this to include the nested technical specs
     specs = VehicleSpecsSerializer(read_only=True)
+    # Add this to include the full images array for frontend logic parity
+    images = VehicleImageSerializer(many=True, read_only=True)
     
     # method to get just the main image thumbnail for list view
     main_image = serializers.SerializerMethodField()
@@ -31,7 +33,7 @@ class VehicleListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'slug', 'make', 'model', 'year', 'licence_plate', 
             'vehicle_type', 'daily_rental_rate', 'status', 'main_image', 
-            'current_location', 'branch_name', 'specs'
+            'images', 'current_location', 'branch_name', 'specs'
         ]
 
     @extend_schema_field(serializers.URLField(allow_null=True))
