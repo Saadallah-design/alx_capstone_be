@@ -1,58 +1,91 @@
-## 💡 Project Idea
-**Car Rental API** using Django REST Framework (DRF).
+# ALX Vehicle Rental - Backend API 🚗💨
 
-## ✨ Features
+## 🌟 The Vision & Utility
+**ALX Vehicle Rental** is more than just a vehicle booking script; it is a **comprehensive Multi-Tenant Fleet Management Ecosystem**. 
 
-- **CRUD Operations:** Basic data management for cars, branches, and rentals.
-- **Security & Permissions:**
-	- Token-based authentication for all non-read operations.
-	- Rental ownership: Only the creator can modify/cancel their rental.
-	- Admin/staff: Only staff or superusers can manage cars and branches.
-- **Search & Availability:**
-	- Endpoint for searching available cars by branch and time slot.
-	- Advanced filtering (location, time, car features).
-	- Time zone conversion for accurate booking.
-- **Transactional Logic:**
-	- Prevent overlapping rentals (concurrency validation).
-	- Automatic price calculation based on duration and daily rate.
-	- One-way rental support (different pick-up/drop-off branches).
+### The Problem
+Most vehicle rental solutions are either "single-shop" (one company, one fleet) or "unmanaged marketplaces" where data isolation and administrative control are messy and insecure.
 
-## 🗂️ Core Models
+### The Solution (Utility)
+This project aims to solve this by providing a high-performance, secure backend that serves two distinct audiences through a single API:
 
-- **RentalBranch:** Physical locations for pick-up/drop-off.
-- **Car:** Inventory of vehicles available for rent.
-- **Rental:** Booking records, including time, car, and user.
-- **User:** Customer and author of rental (Django auth).
+1.  **For Car Rental Agencies (The B2B Utility)**:
+    - **Digital Transformation**: Small to medium agencies can digitize their entire fleet management, from branch inventory to complex booking schedules.
+    - **Multi-Tenant Security**: Strict data isolation ensures an agency's fleet, staff, and financial data are completely private from competitors using the same platform.
+    - **Write-Aggressive Dashboarding**: A specialized API layer optimized for "Fleet Management" (JSON-nested specs, absolute image pathing, and license plate tracking) that prevents the typical "state-reset" bugs found in simpler CRMs.
 
-## 🛠️ Project Plan
+2.  **For Customers (The B2C Utility)**:
+    - **Unified Search**: A streamlined, filtered search experience across all verified agencies and branches.
+    - **Real-Time Availability**: Powered by PostgreSQL `ExclusionConstraints` to ensure a car is never double-booked, even at high volumes.
+    - **Frictionless Payments**: Integrated Stripe checkout for a modern, secure, and trust-building booking experience.
 
-### Phase 1: Setup & Core Models
-- Initialize Django project and app.
-- Install DRF and configure settings.
-- Define `RentalBranch`, `Car`, and `Rental` models with correct relationships.
-- Run migrations and create test data via Django Admin.
+---
 
-### Phase 2: Basic CRUD & Routing
-- Create serializers for core models.
-- Implement ViewSets for CRUD operations.
-- Set up routers and test endpoints with Browsable API.
+## 🚀 Live Demo
+**Backend API**: [https://alx-car-rental-api.onrender.com/](https://alx-car-rental-api.onrender.com/)  
+**Public Dashboard**: [https://alx-capstone-fe.vercel.app/](https://alx-capstone-fe.vercel.app/)
 
-### Phase 3: Authentication & Security
-- Add token authentication and permissions.
-- Implement custom permissions for ownership and admin control.
-- Secure endpoints and test access control.
+---
 
-### Phase 4: Geo-Temporal Logic
-- Implement concurrency validation to prevent overlapping rentals.
-- Add availability search endpoint with advanced filtering.
+## ✨ Key Features
 
-### Phase 5: Polish & Documentation
-- Add pricing logic to rental creation.
-- Write clear documentation for setup, usage, and endpoints.
-- Add basic unit tests for permissions and concurrency.
-- Prepare final presentation materials.
+### 🏢 Multi-Tenancy & Agency Management
+- **Data Isolation**: Agency administrators can only manage vehicles and bookings associated with their own agency.
+- **Fleet Management**: Robust CRUD for vehicles, including technical specs and image uploads.
+- **Branch Control**: Manage multiple physical locations for vehicle pick-up and drop-off.
 
-## 📄 Documentation & Testing
+### 💳 Payments & Bookings
+- **Stripe Integration**: Secure payment processing with real-time webhook synchronization.
+- **Booking Overlap Prevention**: Advanced PostgreSQL constraints (`ExclusionConstraint`) to prevent double-booking.
+- **Dynamic Pricing**: Automatic rental rate calculations.
 
-- Comprehensive README with setup and API usage instructions.
-- Unit tests for custom permissions and booking logic.
+### 🔐 Security & Auth
+- **JWT Authentication**: Secure stateless authentication for all users.
+- **Role-Based Access Control (RBAC)**: Distinct permissions for Customers, Agency Staff, Agency Admins, and Platform Admins.
+- **Absolute URL Integrity**: Consistent image pathing for cross-domain frontend consumption.
+
+---
+
+## 🛠️ Tech Stack
+- **Framework**: Django & Django REST Framework (DRF)
+- **Database**: PostgreSQL (with `btree_gist` extension)
+- **Payments**: Stripe API
+- **Documentation**: Swagger/OpenAPI via `drf-spectacular`
+- **Hosting**: Render (Backend) & Vercel (Frontend)
+
+---
+
+## 📦 Installation & Setup
+
+### Prerequisites
+- Python 3.10+
+- PostgreSQL
+- Stripe Account (for payment features)
+
+### Local Development
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/Saadallah-design/alx_capstone_be.git
+   cd alx_capstone_be
+   ```
+
+2. **Setup virtual environment**:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # Mac/Linux
+   pip install -r requirements.txt
+   ```
+
+3. **Configure Environment Variables**:
+   Create a `.env` file in the root directory (see `carRentalConfig/settings.py` for required variables).
+
+4. **Run Migrations & Seed Data**:
+   ```bash
+   python manage.py migrate
+   python manage.py seed_data
+   ```
+
+5. **Start the server**:
+   ```bash
+   python manage.py runserver
+   ```

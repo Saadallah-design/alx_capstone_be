@@ -1,0 +1,1500 @@
+openapi: 3.0.3
+info:
+  title: ALX Car Rental API
+  version: 1.0.0
+  description: Comprehensive API for the ALX Capstone Car Rental Platform. Supports
+    dual roles (Agencies/Customers), location tracking, and real-time booking management.
+paths:
+  /api/auth/login/:
+    post:
+      operationId: auth_login_create
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPair'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPair'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomTokenObtainPair'
+          description: ''
+  /api/auth/me/:
+    get:
+      operationId: auth_me_retrieve
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileDetail'
+          description: ''
+    put:
+      operationId: auth_me_update
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserProfileDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserProfileDetail'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileDetail'
+          description: ''
+    patch:
+      operationId: auth_me_partial_update
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserProfileDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserProfileDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserProfileDetail'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileDetail'
+          description: ''
+  /api/auth/register/:
+    post:
+      operationId: auth_register_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistration'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRegistration'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRegistration'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRegistration'
+          description: ''
+  /api/auth/token/refresh/:
+    post:
+      operationId: auth_token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/bookings/:
+    get:
+      operationId: bookings_list
+      tags:
+      - bookings
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookingList'
+          description: ''
+    post:
+      operationId: bookings_create
+      tags:
+      - bookings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BookingCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BookingCreate'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingCreate'
+          description: ''
+  /api/bookings/{id}/:
+    get:
+      operationId: bookings_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - bookings
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingDetail'
+          description: ''
+    put:
+      operationId: bookings_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - bookings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BookingDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BookingDetail'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingDetail'
+          description: ''
+    patch:
+      operationId: bookings_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - bookings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBookingDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedBookingDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedBookingDetail'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingDetail'
+          description: ''
+  /api/bookings/agency/:
+    get:
+      operationId: bookings_agency_list
+      tags:
+      - bookings
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookingList'
+          description: ''
+  /api/branches/:
+    get:
+      operationId: branches_list
+      tags:
+      - branches
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BranchList'
+          description: ''
+    post:
+      operationId: branches_create
+      tags:
+      - branches
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Branch'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Branch'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Branch'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+          description: ''
+  /api/branches/{slug}/:
+    get:
+      operationId: branches_retrieve
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - branches
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BranchDetail'
+          description: ''
+    put:
+      operationId: branches_update
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - branches
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Branch'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Branch'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Branch'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+          description: ''
+    patch:
+      operationId: branches_partial_update
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - branches
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBranch'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedBranch'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedBranch'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+          description: ''
+    delete:
+      operationId: branches_destroy
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - branches
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/branches/{slug}/inventory/:
+    get:
+      operationId: branches_inventory_retrieve
+      description: |-
+        Custom endpoint: GET /api/branches/{slug}/inventory/
+        Returns all available vehicles currently parked at this branch.
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - branches
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Branch'
+          description: ''
+  /api/vehicles/:
+    get:
+      operationId: vehicles_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: specs__fuel_type
+        schema:
+          type: string
+          enum:
+          - DIESEL
+          - ELECTRIC
+          - HYBRID
+          - PETROL
+        description: |-
+          * `PETROL` - Petrol
+          * `DIESEL` - Diesel
+          * `ELECTRIC` - Electric
+          * `HYBRID` - Hybrid
+      - in: query
+        name: specs__transmission
+        schema:
+          type: string
+          enum:
+          - AUTOMATIC
+          - MANUAL
+          - NA
+          - SEMI_AUTOMATIC
+        description: |-
+          * `MANUAL` - Manual
+          * `AUTOMATIC` - Automatic
+          * `SEMI_AUTOMATIC` - Semi-Automatic
+          * `NA` - N/A
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - AVAILABLE
+          - MAINTENANCE
+          - RENTED
+        description: |-
+          * `AVAILABLE` - Available
+          * `RENTED` - Rented
+          * `MAINTENANCE` - Maintenance
+      - in: query
+        name: vehicle_type
+        schema:
+          type: string
+          enum:
+          - BICYCLE
+          - BIG_BIKE
+          - CAR
+          - SCOOTER
+        description: |-
+          * `CAR` - Car
+          * `SCOOTER` - Scooter
+          * `BIG_BIKE` - Big_Bike
+          * `BICYCLE` - Bicycle
+      - in: query
+        name: year
+        schema:
+          type: integer
+      tags:
+      - vehicles
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VehicleList'
+          description: ''
+    post:
+      operationId: vehicles_create
+      tags:
+      - vehicles
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VehicleDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VehicleDetail'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleDetail'
+          description: ''
+  /api/vehicles/{slug}/:
+    get:
+      operationId: vehicles_retrieve
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - vehicles
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleDetail'
+          description: ''
+    put:
+      operationId: vehicles_update
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - vehicles
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VehicleDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VehicleDetail'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleDetail'
+          description: ''
+    patch:
+      operationId: vehicles_partial_update
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - vehicles
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedVehicleDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedVehicleDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedVehicleDetail'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleDetail'
+          description: ''
+    delete:
+      operationId: vehicles_destroy
+      parameters:
+      - in: path
+        name: slug
+        schema:
+          type: string
+        required: true
+      tags:
+      - vehicles
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+components:
+  schemas:
+    AgencyBasic:
+      type: object
+      description: |-
+        Basic agency info for nested display in user profile.
+        Only shows essential read-only information.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        agency_name:
+          type: string
+          readOnly: true
+        contact_email:
+          type: string
+          format: email
+          readOnly: true
+          nullable: true
+        phone_number:
+          type: string
+          readOnly: true
+          nullable: true
+      required:
+      - agency_name
+      - contact_email
+      - id
+      - phone_number
+    BookingCreate:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        vehicle:
+          type: integer
+        pickup_location:
+          type: integer
+        dropoff_location:
+          type: integer
+        start_date:
+          type: string
+          format: date-time
+        end_date:
+          type: string
+          format: date-time
+        total_rental_cost:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+        booking_status:
+          allOf:
+          - $ref: '#/components/schemas/BookingStatusEnum'
+          readOnly: true
+      required:
+      - booking_status
+      - dropoff_location
+      - end_date
+      - id
+      - pickup_location
+      - start_date
+      - total_rental_cost
+      - vehicle
+    BookingDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          allOf:
+          - $ref: '#/components/schemas/UserProfileDetail'
+          readOnly: true
+        agency:
+          type: integer
+        vehicle:
+          allOf:
+          - $ref: '#/components/schemas/VehicleList'
+          readOnly: true
+        pickup_location:
+          type: integer
+        dropoff_location:
+          type: integer
+        start_date:
+          type: string
+          format: date-time
+        end_date:
+          type: string
+          format: date-time
+        total_rental_cost:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+        booking_status:
+          $ref: '#/components/schemas/BookingStatusEnum'
+        agency_name:
+          type: string
+          readOnly: true
+        pickup_branch_name:
+          type: string
+          readOnly: true
+        dropoff_branch_name:
+          type: string
+          readOnly: true
+      required:
+      - agency
+      - agency_name
+      - dropoff_branch_name
+      - dropoff_location
+      - end_date
+      - id
+      - pickup_branch_name
+      - pickup_location
+      - start_date
+      - total_rental_cost
+      - user
+      - vehicle
+    BookingList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        vehicle:
+          type: integer
+        vehicle_make:
+          type: string
+          readOnly: true
+        vehicle_model:
+          type: string
+          readOnly: true
+        vehicle_image:
+          type: string
+          format: uri
+          nullable: true
+          readOnly: true
+        start_date:
+          type: string
+          format: date-time
+        end_date:
+          type: string
+          format: date-time
+        total_rental_cost:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        booking_status:
+          $ref: '#/components/schemas/BookingStatusEnum'
+      required:
+      - end_date
+      - id
+      - start_date
+      - total_rental_cost
+      - vehicle
+      - vehicle_image
+      - vehicle_make
+      - vehicle_model
+    BookingStatusEnum:
+      enum:
+      - PENDING
+      - CONFIRMED
+      - CANCELLED
+      - COMPLETED
+      type: string
+      description: |-
+        * `PENDING` - Pending
+        * `CONFIRMED` - Confirmed
+        * `CANCELLED` - Cancelled
+        * `COMPLETED` - Completed
+    Branch:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        agency_name:
+          type: string
+          readOnly: true
+        city:
+          type: string
+          maxLength: 100
+        slug:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
+        address:
+          type: string
+        latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+          nullable: true
+        longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+          nullable: true
+        opening_time:
+          type: string
+          format: time
+        closing_time:
+          type: string
+          format: time
+        is_active:
+          type: boolean
+        is_pickup_point:
+          type: boolean
+        is_dropoff_point:
+          type: boolean
+      required:
+      - address
+      - agency_name
+      - city
+      - closing_time
+      - id
+      - name
+      - opening_time
+      - slug
+    BranchDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        slug:
+          type: string
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          maxLength: 100
+        agency_name:
+          type: string
+          readOnly: true
+        phone_number:
+          type: string
+          maxLength: 20
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        city:
+          type: string
+          maxLength: 100
+        address:
+          type: string
+        country:
+          type: string
+          maxLength: 100
+        latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+          nullable: true
+        longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+          nullable: true
+        opening_time:
+          type: string
+          format: time
+        closing_time:
+          type: string
+          format: time
+        is_pickup_point:
+          type: boolean
+        is_dropoff_point:
+          type: boolean
+        is_active:
+          type: boolean
+      required:
+      - address
+      - agency_name
+      - city
+      - closing_time
+      - country
+      - email
+      - id
+      - name
+      - opening_time
+      - phone_number
+    BranchList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        city:
+          type: string
+          maxLength: 100
+        slug:
+          type: string
+          maxLength: 50
+          pattern: ^[-a-zA-Z0-9_]+$
+      required:
+      - city
+      - id
+      - name
+    CustomTokenObtainPair:
+      type: object
+      description: |-
+        Custom JWT serializer that:
+        1. Accepts email OR username for login
+        2. Adds custom claims to the JWT token
+      properties:
+        username:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - password
+      - username
+    FuelTypeEnum:
+      enum:
+      - PETROL
+      - DIESEL
+      - ELECTRIC
+      - HYBRID
+      type: string
+      description: |-
+        * `PETROL` - Petrol
+        * `DIESEL` - Diesel
+        * `ELECTRIC` - Electric
+        * `HYBRID` - Hybrid
+    PatchedBookingDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          allOf:
+          - $ref: '#/components/schemas/UserProfileDetail'
+          readOnly: true
+        agency:
+          type: integer
+        vehicle:
+          allOf:
+          - $ref: '#/components/schemas/VehicleList'
+          readOnly: true
+        pickup_location:
+          type: integer
+        dropoff_location:
+          type: integer
+        start_date:
+          type: string
+          format: date-time
+        end_date:
+          type: string
+          format: date-time
+        total_rental_cost:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+        booking_status:
+          $ref: '#/components/schemas/BookingStatusEnum'
+        agency_name:
+          type: string
+          readOnly: true
+        pickup_branch_name:
+          type: string
+          readOnly: true
+        dropoff_branch_name:
+          type: string
+          readOnly: true
+    PatchedBranch:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        agency_name:
+          type: string
+          readOnly: true
+        city:
+          type: string
+          maxLength: 100
+        slug:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
+        address:
+          type: string
+        latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+          nullable: true
+        longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+          nullable: true
+        opening_time:
+          type: string
+          format: time
+        closing_time:
+          type: string
+          format: time
+        is_active:
+          type: boolean
+        is_pickup_point:
+          type: boolean
+        is_dropoff_point:
+          type: boolean
+    PatchedUserProfileDetail:
+      type: object
+      description: |-
+        Extended serializer with more details for the user's own profile.
+        Includes additional fields that other users shouldn't see.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        first_name:
+          type: string
+          maxLength: 30
+        last_name:
+          type: string
+          maxLength: 30
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          readOnly: true
+          description: |-
+            Role of the user in the system
+
+            * `CUSTOMER` - Customer
+            * `AGENCY_ADMIN` - Agency Admin
+            * `AGENCY_STAFF` - Agency Staff
+            * `PLATFORM_ADMIN` - Platform Admin
+        agency:
+          allOf:
+          - $ref: '#/components/schemas/AgencyBasic'
+          readOnly: true
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+        phone_number:
+          type: string
+          nullable: true
+          maxLength: 20
+        total_rentals:
+          type: integer
+          readOnly: true
+        active_rentals:
+          type: integer
+          readOnly: true
+        is_active:
+          type: boolean
+    PatchedVehicleDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        owner_agency:
+          type: integer
+          readOnly: true
+          nullable: true
+        agency_name:
+          type: string
+          readOnly: true
+        make:
+          type: string
+          maxLength: 100
+        model:
+          type: string
+          maxLength: 100
+        year:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        vehicle_type:
+          $ref: '#/components/schemas/VehicleTypeEnum'
+        daily_rental_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        licence_plate:
+          type: string
+          maxLength: 20
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        slug:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
+        specs:
+          allOf:
+          - $ref: '#/components/schemas/VehicleSpecs'
+          readOnly: true
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/VehicleImage'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        current_location:
+          type: integer
+          nullable: true
+          description: Current physical location of this vehicle
+        branch_details:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+          readOnly: true
+    RoleEnum:
+      enum:
+      - CUSTOMER
+      - AGENCY_ADMIN
+      - AGENCY_STAFF
+      - PLATFORM_ADMIN
+      type: string
+      description: |-
+        * `CUSTOMER` - Customer
+        * `AGENCY_ADMIN` - Agency Admin
+        * `AGENCY_STAFF` - Agency Staff
+        * `PLATFORM_ADMIN` - Platform Admin
+    StatusEnum:
+      enum:
+      - AVAILABLE
+      - RENTED
+      - MAINTENANCE
+      type: string
+      description: |-
+        * `AVAILABLE` - Available
+        * `RENTED` - Rented
+        * `MAINTENANCE` - Maintenance
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    TransmissionEnum:
+      enum:
+      - MANUAL
+      - AUTOMATIC
+      - SEMI_AUTOMATIC
+      - NA
+      type: string
+      description: |-
+        * `MANUAL` - Manual
+        * `AUTOMATIC` - Automatic
+        * `SEMI_AUTOMATIC` - Semi-Automatic
+        * `NA` - N/A
+    UserProfileDetail:
+      type: object
+      description: |-
+        Extended serializer with more details for the user's own profile.
+        Includes additional fields that other users shouldn't see.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        first_name:
+          type: string
+          maxLength: 30
+        last_name:
+          type: string
+          maxLength: 30
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          readOnly: true
+          description: |-
+            Role of the user in the system
+
+            * `CUSTOMER` - Customer
+            * `AGENCY_ADMIN` - Agency Admin
+            * `AGENCY_STAFF` - Agency Staff
+            * `PLATFORM_ADMIN` - Platform Admin
+        agency:
+          allOf:
+          - $ref: '#/components/schemas/AgencyBasic'
+          readOnly: true
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+        phone_number:
+          type: string
+          nullable: true
+          maxLength: 20
+        total_rentals:
+          type: integer
+          readOnly: true
+        active_rentals:
+          type: integer
+          readOnly: true
+        is_active:
+          type: boolean
+      required:
+      - active_rentals
+      - agency
+      - date_joined
+      - email
+      - first_name
+      - id
+      - last_name
+      - role
+      - total_rentals
+      - username
+    UserRegistration:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 30
+        last_name:
+          type: string
+          maxLength: 30
+        password:
+          type: string
+          writeOnly: true
+        password_confirm:
+          type: string
+          writeOnly: true
+      required:
+      - email
+      - first_name
+      - id
+      - last_name
+      - password
+      - password_confirm
+      - username
+    VehicleDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        owner_agency:
+          type: integer
+          readOnly: true
+          nullable: true
+        agency_name:
+          type: string
+          readOnly: true
+        make:
+          type: string
+          maxLength: 100
+        model:
+          type: string
+          maxLength: 100
+        year:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        vehicle_type:
+          $ref: '#/components/schemas/VehicleTypeEnum'
+        daily_rental_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        licence_plate:
+          type: string
+          maxLength: 20
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        slug:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
+        specs:
+          allOf:
+          - $ref: '#/components/schemas/VehicleSpecs'
+          readOnly: true
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/VehicleImage'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        current_location:
+          type: integer
+          nullable: true
+          description: Current physical location of this vehicle
+        branch_details:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+          readOnly: true
+      required:
+      - agency_name
+      - branch_details
+      - created_at
+      - daily_rental_rate
+      - id
+      - images
+      - licence_plate
+      - owner_agency
+      - slug
+      - specs
+      - vehicle_type
+      - year
+    VehicleImage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        image:
+          type: string
+          format: uri
+        is_main:
+          type: boolean
+      required:
+      - id
+      - image
+    VehicleList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        make:
+          type: string
+          maxLength: 100
+        daily_rental_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        model:
+          type: string
+          maxLength: 100
+        main_image:
+          type: string
+          format: uri
+          nullable: true
+          readOnly: true
+        branch_name:
+          type: string
+          readOnly: true
+      required:
+      - branch_name
+      - daily_rental_rate
+      - id
+      - main_image
+    VehicleSpecs:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        transmission:
+          $ref: '#/components/schemas/TransmissionEnum'
+        fuel_type:
+          $ref: '#/components/schemas/FuelTypeEnum'
+        seats:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        engine_capacity_cc:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+        is_air_conditioned:
+          type: boolean
+        is_helmet_included:
+          type: boolean
+      required:
+      - fuel_type
+      - id
+      - seats
+      - transmission
+    VehicleTypeEnum:
+      enum:
+      - CAR
+      - SCOOTER
+      - BIG_BIKE
+      - BICYCLE
+      type: string
+      description: |-
+        * `CAR` - Car
+        * `SCOOTER` - Scooter
+        * `BIG_BIKE` - Big_Bike
+        * `BICYCLE` - Bicycle
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
