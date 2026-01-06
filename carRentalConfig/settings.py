@@ -189,10 +189,10 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Media files (User uploads)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Whitenoise configuration for serving static files
+# # Whitenoise configuration for serving static files
 # if not DEBUG:
 #     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
@@ -238,22 +238,19 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
 }
 
-# Modern Django 4.2+ Storage configuration
+# Storage configuration - Use basic StaticFilesStorage to avoid font file issues
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        # "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
-# 2. THE "COMPATIBILITY" WAY (For Cloudinary's internal commands)
-# We add this back so Cloudinary's collectstatic doesn't crash
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-WHITENOISE_KEEP_ONLY_HASHED_FILES = True
+# Legacy settings for django-cloudinary-storage compatibility
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Still needed for local reference and URL generation
 MEDIA_URL = '/media/'
