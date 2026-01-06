@@ -15,12 +15,12 @@ class Command(BaseCommand):
         # 1. Define Mock Agencies and Their Admins
         agency_configs = [
             {
-                "username": "rabat_admin",
-                "email": "admin@rabat-rentals.com",
-                "agency_name": "Rabat Car Services",
+                "username": "rawai_admin",
+                "email": "admin@rawai-rentals.com",
+                "agency_name": "Rawai Car Services",
                 "city": "PHUKET_TOWN",
-                "address": "45 Rabat Street, Phuket",
-                "license": "LIC-RABAT-001"
+                "address": "45 Rawai Street, Phuket",
+                "license": "LIC-RAWAI-001"
             },
             {
                 "username": "patong_admin",
