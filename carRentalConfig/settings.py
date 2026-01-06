@@ -2,10 +2,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 
-# Cloudinary Imports 
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
+
 
 load_dotenv()
 # env = os.environ.Env()
