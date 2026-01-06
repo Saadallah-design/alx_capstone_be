@@ -14,14 +14,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# CORS Settings
 DEBUG = os.getenv('DEBUG') == 'True'
 
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    'testserver',
-]
+# Allowed hosts
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
+
+# local hosts for development
+ALLOWED_HOSTS.extend(['localhost', '127.0.0.1'])
+
+# CORS settings
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')
+    CORS_ALLOW_CREDENTIALS = True   
 
 # Add Render.com host in production
 RENDER_EXTERNAL_HOSTNAME = os.getenv('RENDER_EXTERNAL_HOSTNAME')
@@ -186,8 +193,8 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Whitenoise configuration for serving static files
-if not DEBUG:
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# if not DEBUG:
+#     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -215,18 +222,7 @@ SPECTACULAR_SETTINGS = {
     # OTHER SETTINGS
 }
 
-# CORS Settings
-DEBUG = os.getenv('DEBUG') == 'True'
-
-# Allowed hosts
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
-
-# CORS settings
-if DEBUG:
-    CORS_ALLOW_ALL_ORIGINS = True
-else:
-    CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')
-    CORS_ALLOW_CREDENTIALS = True        
+     
 
 # Stripe
 STRIPE_TEST_SECRET_KEY = os.getenv('STRIPE_TEST_SECRET_KEY')  # Your test secret key
@@ -248,9 +244,16 @@ STORAGES = {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        # "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
+# 2. THE "COMPATIBILITY" WAY (For Cloudinary's internal commands)
+# We add this back so Cloudinary's collectstatic doesn't crash
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+WHITENOISE_KEEP_ONLY_HASHED_FILES = True
 
 # Still needed for local reference and URL generation
 MEDIA_URL = '/media/'
