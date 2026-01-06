@@ -2,6 +2,11 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 
+# Cloudinary Imports 
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
 load_dotenv()
 # env = os.environ.Env()
 # os.environ.Env.read_env(os.path.join(BASE_DIR, 'carRentalConfig/.env'))
