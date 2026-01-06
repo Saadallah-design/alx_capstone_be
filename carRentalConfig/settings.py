@@ -212,6 +212,7 @@ SPECTACULAR_SETTINGS = {
 # CORS Settings
 DEBUG = os.getenv('DEBUG') == 'True'
 
+# Allowed hosts
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
 # CORS settings
@@ -219,8 +220,7 @@ if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
 else:
     CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')
-    CORS_ALLOW_CREDENTIALS = True
-    
+    CORS_ALLOW_CREDENTIALS = True        
 
 # Stripe
 STRIPE_TEST_SECRET_KEY = os.getenv('STRIPE_TEST_SECRET_KEY')  # Your test secret key
