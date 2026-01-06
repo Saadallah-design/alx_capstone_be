@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALX Vehicle Rental API</title>
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="{% static 'css/landing.css' %}">
+
+    <!-- IonIcons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="icon-container">
+            <ion-icon name="car-sport-outline"></ion-icon>
+        </div>
+
+        <h1>ALX Vehicle Rental API</h1>
+        <p>A comprehensive API bridge for modern mobility and vehicle management solutions.</p>
+
+        <div class="links">
+            <a href="/api/schema/swagger-ui/" class="btn btn-primary">REST API Docs</a>
+            <a href="/admin/" class="btn btn-secondary">Admin Dashboard</a>
+        </div>
+
+        <div class="footer">
+            <p>Created by <span class="creator-name">Salaheddine Saadallah</span></p>
+            <div class="social-links">
+                <a href="https://github.com/Saadallah-design" class="social-link" target="_blank" aria-label="GitHub">
+                    <ion-icon name="logo-github"></ion-icon>
+                </a>
+                <a href="https://www.linkedin.com/in/salah-eddine-saadallah-a74b89101/" class="social-link"
+                    target="_blank" aria-label="LinkedIn">
+                    <ion-icon name="logo-linkedin"></ion-icon>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
