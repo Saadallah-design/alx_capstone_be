@@ -10,11 +10,11 @@ from rest_framework_simplejwt.views import (
 
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
-from django.views.generic.base import RedirectView
+from django.views.generic import TemplateView
 
 
 urlpatterns = [
-    path('', RedirectView.as_view(url='/api/schema/swagger-ui/', permanent=False), name='root-redirect'),
+    path('', TemplateView.as_view(template_name='index.html'), name='home'),
     path('admin/', admin.site.urls),
     
     # API endpoints
