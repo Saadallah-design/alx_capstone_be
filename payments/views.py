@@ -10,8 +10,11 @@ from django.utils.decorators import method_decorator
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 import json
 import uuid
+
+from .serializers import InitiatePaymentSerializer, PaymentResponseSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +80,13 @@ class InitiatePaymentView(APIView):
     { "booking_id": 123 }
     """
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = InitiatePaymentSerializer
 
+    @extend_schema(
+        request=InitiatePaymentSerializer,
+        responses={201: PaymentResponseSerializer, 200: PaymentResponseSerializer},
+        description="Initialize a payment for a booking"
+    )
     def post(self, request):
         booking_id = request.data.get('booking_id')
         payment_type = request.data.get('payment_type', 'RENTAL_FEE')

@@ -1,4 +1,5 @@
 import json
+from typing import Optional
 from rest_framework import serializers
 from .models import Vehicle, VehicleImage, VehicleSpecs
 from drf_spectacular.utils import extend_schema_field
@@ -14,7 +15,7 @@ class VehicleImageSerializer(serializers.ModelSerializer):
         model = VehicleImage
         fields = ['id', 'image', 'is_main', 'thumbnail']
 
-    def get_thumbnail(self, obj):
+    def get_thumbnail(self, obj) -> Optional[str]:
         if not obj.image:
             return None
         url = obj.image.url
