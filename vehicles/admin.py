@@ -16,10 +16,14 @@ class VehicleImageInline(admin.TabularInline):
     fields = ('image', 'is_main', 'image_preview')
 
     def image_preview(self, obj):
-        if obj.image:
-            # using the same Cloudinary transformation logic as  get_thumbnail method
-            thumb_url = obj.image.url.replace('/upload/', '/upload/w_100,h_100,c_fill,q_auto,f_auto/')
-            return format_html('<img src="{}" style="border-radius: 5px; border: 1px solid #ccc;" />', thumb_url)
+        # Check if object is saved and has an image
+        if obj.pk and obj.image:
+            try:
+                # using the same Cloudinary transformation logic as get_thumbnail method
+                thumb_url = obj.image.url.replace('/upload/', '/upload/w_100,h_100,c_fill,q_auto,f_auto/')
+                return format_html('<img src="{}" style="border-radius: 5px; border: 1px solid #ccc;" />', thumb_url)
+            except (AttributeError, ValueError):
+                return "Preview unavailable"
         return "No Preview"
     
 @admin.register(Vehicle)
