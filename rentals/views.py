@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from .models import Booking
@@ -11,13 +12,20 @@ class BookingListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
-        # Customers see only their own bookings
-        # Agency users see bookings for their agency's vehicles
+        """
+        Booking visibility logic:
+        - Customers: See only their personal bookings.
+        - Agency Users: See BOTH personal bookings AND agency bookings.
+          (This allows staff to manage agency rentals while tracking their own personal rentals)
+        """
         user = self.request.user
         if user.is_customer():
             return Booking.objects.filter(user=user).order_by('-start_date')
         elif user.is_agency_user():
-            return Booking.objects.filter(agency=user.agency).order_by('-start_date')
+            # Show personal bookings OR agency bookings
+            return Booking.objects.filter(
+                Q(user=user) | Q(agency=user.agency)
+            ).distinct().order_by('-start_date')
         return Booking.objects.none()
     
     def get_serializer_class(self):
@@ -31,11 +39,16 @@ class BookingDetailView(generics.RetrieveUpdateAPIView):
     permission_classes = [permissions.IsAuthenticated, IsBookingParticipant]
     
     def get_queryset(self):
+        """
+        Same dual-role logic as BookingListCreateView for consistency.
+        """
         user = self.request.user
         if user.is_customer():
             return Booking.objects.filter(user=user)
         elif user.is_agency_user():
-            return Booking.objects.filter(agency=user.agency)
+            return Booking.objects.filter(
+                Q(user=user) | Q(agency=user.agency)
+            ).distinct()
         return Booking.objects.none()
     
     def update(self, request, *args, **kwargs):
