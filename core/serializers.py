@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Agency
+from .models import Agency, AgencyMember
 
 class AgencyApplicationSerializer(serializers.ModelSerializer):
     """
@@ -40,3 +40,17 @@ class AgencyApplicationSerializer(serializers.ModelSerializer):
                 user.save()
              
         return agency
+
+class AgencyMemberSerializer(serializers.ModelSerializer):
+    """
+    Serializer to display details of an agency staff member.
+    """
+    username = serializers.CharField(source='user.username', read_only=True)
+    email = serializers.EmailField(source='user.email', read_only=True)
+    first_name = serializers.CharField(source='user.first_name', read_only=True)
+    last_name = serializers.CharField(source='user.last_name', read_only=True)
+
+    class Meta:
+        model = AgencyMember
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'joined_at', 'is_active']
+        read_only_fields = ['joined_at']

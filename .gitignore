@@ -3,7 +3,7 @@
 # ------------------------------------
 
 # My folders
-docs/
+# docs/ (Removed to allow tracking of documentation and tests)
 # Virtual environment folders
 .venv
 venv/
