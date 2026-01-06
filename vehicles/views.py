@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.db.models import Q
 from rest_framework import generics, permissions, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Vehicle
@@ -37,9 +38,14 @@ class VehicleListCreateView(generics.ListCreateAPIView):
             if user.is_authenticated and user.is_platform_admin():
                 return qs
 
-            # 2. Agency users see all THEIR vehicles (unfiltered by status)
-            if user.is_authenticated and user.is_agency_user() and user.agency:
+            # 2. Check for explicit 'scope=agency' filter
+            # This is used by the Dashboard to show "My Fleet" (only my agency's cars)
+            scope = self.request.query_params.get('scope')
+            if scope == 'agency' and user.is_authenticated and user.is_agency_user() and user.agency:
                 return qs.filter(owner_agency=user.agency)
+
+            # 3. Default: Public/Search View
+            # Everyone (including agency staff looking to rent) sees all AVAILABLE vehicles
 
             # 3. Public/Customers only see AVAILABLE vehicles
             return qs.filter(status='AVAILABLE')
