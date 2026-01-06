@@ -7,9 +7,20 @@ from drf_spectacular.utils import extend_schema_field
 
 # handling image uploads and displays
 class VehicleImageSerializer(serializers.ModelSerializer):
+    # defining a thumbnail field for the image
+    thumbnail = serializers.SerializerMethodField()
+    
     class Meta:
         model = VehicleImage
-        fields = ['id', 'image', 'is_main']
+        fields = ['id', 'image', 'is_main', 'thumbnail']
+
+    def get_thumbnail(self, obj):
+        if not obj.image:
+            return None
+        url = obj.image.url
+        return url.replace('/upload/', '/upload/w_400,h_300,c_fill,q_auto,f_auto/')
+
+
 
 # handling vehicle specs
 class VehicleSpecsSerializer(serializers.ModelSerializer):
@@ -51,7 +62,7 @@ class VehicleListSerializer(serializers.ModelSerializer):
 # handling vehicle detail display
 class VehicleDetailSerializer(serializers.ModelSerializer):
     # Now using nested serializers for related objects
-    images = VehicleImageSerializer(many=True, required=False)
+    images = VehicleImageSerializer(many=True, required=False, read_only=True)
     # Changed from read_only=True to allow creation and updates
     specs = VehicleSpecsSerializer(required=True)
     agency_name = serializers.CharField(source='owner_agency.agency_name', read_only=True)

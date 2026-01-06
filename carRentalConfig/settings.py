@@ -36,7 +36,9 @@ INSTALLED_APPS = [
     'django.contrib.postgres', # Required for ExclusionConstraint
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',
     'django.contrib.staticfiles',
+    'cloudinary',
     'users',
     'core',
     'branches',
@@ -49,6 +51,8 @@ INSTALLED_APPS = [
     'django_extensions',
     'corsheaders',
     'payments'
+    
+   
     # 'sslserver', # For HTTPS dev server
 ]
 
@@ -227,3 +231,24 @@ STRIPE_TEST_SECRET_KEY = os.getenv('STRIPE_TEST_SECRET_KEY')  # Your test secret
 STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET') 
 
 SITE_URL = os.getenv('SITE_URL', 'http://localhost:5173')
+
+
+#Cloudinary Setting
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+}
+
+# Modern Django 4.2+ Storage configuration
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
+# Still needed for local reference and URL generation
+MEDIA_URL = '/media/'

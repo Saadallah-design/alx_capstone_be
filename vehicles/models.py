@@ -78,5 +78,5 @@ class VehicleSpecs(models.Model):
 
 class VehicleImage(models.Model):
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='vehicles/')
+    image = models.ImageField(upload_to='vehicles_images/')
     is_main = models.BooleanField(default=False)
