@@ -63,7 +63,8 @@ class VehicleListSerializer(serializers.ModelSerializer):
 # handling vehicle detail display
 class VehicleDetailSerializer(serializers.ModelSerializer):
     # Now using nested serializers for related objects
-    images = VehicleImageSerializer(many=True, required=False, read_only=True)
+    # the read_only=True for the images field didnt allow me to update the image for admin or agency
+    images = VehicleImageSerializer(many=True, required=False, read_only=False)
     # Changed from read_only=True to allow creation and updates
     specs = VehicleSpecsSerializer(required=True)
     agency_name = serializers.CharField(source='owner_agency.agency_name', read_only=True)
